@@ -3,7 +3,6 @@ import { BLACK } from '../../config/contants';
 
 function SingleSquare({
   shape = 'square',
-  color = BLACK,
   size = 24,
   className = '',
   style = {},
@@ -15,13 +14,13 @@ function SingleSquare({
 
 
   let computedStyle = {};
-  const chosencolor = color;
+  const chosencolor = BLACK;
 
   if (normalized === 'circle') {
     computedStyle = {     
        width: sizePx,
        height: sizePx, 
-       backgroundColor: color, 
+       backgroundColor: chosencolor, 
        borderRadius: '50%' };
   } else if (normalized === 'hole') {
     // Render a ring (donut) using a border so the center remains hollow
