@@ -57,7 +57,7 @@ function Grid({ width = 8, height = 8, size = 24,
           key={i}
           direction={{ xs: "row", sm: "row" }}
          
-          sx={{ width: "100%" }}
+          // sx={{ width: "100%" }}
         >
           {cells.slice(i, i + cols).map((component, index) => (
             <React.Fragment key={index}>
@@ -69,20 +69,14 @@ function Grid({ width = 8, height = 8, size = 24,
     }
 
     return (
-      <Stack  sx={{ width: "100%" }}>
+      <Stack >
+    
         {rows2}
-      </Stack>
+     </Stack>
     );
 
 
 
-
-
-  // return (
-  //   <div  >
-  //     {cells} 
-  //   </div>
-  // );
 }
 
 export default Grid;

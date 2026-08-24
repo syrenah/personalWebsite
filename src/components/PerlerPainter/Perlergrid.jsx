@@ -33,7 +33,10 @@ function Perlergrid() {
       <Paper component="section" className="container" elevation={3}>
        
     <section style={{ marginTop: 20 }}>
-       <Stack direction={{ xs: 'row' }} spacing={2} className="top-row">
+
+
+       <Stack direction={{ xs: 'colum' ,md: 'row' }} spacing={2} className="top-row">
+       <Stack direction={{ xs: 'row',md: 'column'  }} spacing={2} className="top-row">
           <FormControlField
             type="text"
             label="Width"
@@ -73,17 +76,16 @@ function Perlergrid() {
             options={[{ label: 'Square', value: 'square' }, { label: 'Circle', value: 'circle' }, { label: 'Hole', value: 'hole' }]}
             selectId="perler-shape"
           />
-    
+  </Stack>
 
 
-              
-       
-     </Stack>
-      <div style={{ marginTop: 20, width: '100%' }}>
+
         <ColorPicker color={color} onChange={setColor} />
-      </div>
+
           
       <Grid width={width} height={height} size={size} shape={shape} activeColor={color} gap={4} />
+</Stack>
+
     </section>
        </Paper>
     </Box>
