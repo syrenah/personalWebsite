@@ -2,7 +2,7 @@ import React from 'react';
 import { BLACK } from '../../config/contants';
 
 function SingleSquare({
-  shape = 'square',
+  shape = 'circle',
   size = 24,
   className = '',
   style = {},

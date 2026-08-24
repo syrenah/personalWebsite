@@ -11,7 +11,10 @@ function ActionButtons({
   onCommandGenerated,
   onCopy,
 }) {
-  const { createResource, deleteResource, getResourcesByKind } = useClusterStore();
+  const { createResource, 
+    deleteResource, 
+    getResourcesByKind } =
+     useClusterStore();
 
   const handleGenerate = () => {
     const command = buildKubectlCommand({
@@ -25,6 +28,7 @@ function ActionButtons({
     const mock = buildMockOutput({
       action,
       resource,
+      name,
       namespace,
       selectedOptions,
       createResource,

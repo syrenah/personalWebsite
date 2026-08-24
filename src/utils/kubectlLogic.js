@@ -52,6 +52,7 @@ export function buildKubectlCommand({ action, resource, name, namespace, selecte
 export function buildMockOutput({
   action,
   resource,
+  name,
   namespace,
   selectedOptions,
   createResource,
@@ -59,10 +60,10 @@ export function buildMockOutput({
   getResourcesByKind,
 }) {
   if (action === 'create') {
-    const resourceName = resource === 'namespace' ? 'new-namespace' : 'example-resource';
+    // const resourceName = resource === 'namespace' ? 'new-namespace' : 'example-resource';
     const createdResource = {
       kind: resource.charAt(0).toUpperCase() + resource.slice(1),
-      name: resourceName,
+      name: name,
       namespace: namespace || 'default',
       status: 'Created',
     };
@@ -179,7 +180,9 @@ Events:
  Normal Pulled`;
   }
 
-  if (action === 'create') {
+  if (action === 'create' 
+    || action === 'run' 
+  ) {
     return `apiVersion: v1
 kind: ${resource === 'pod' ? 'Pod' : resource.charAt(0).toUpperCase() + resource.slice(1)}
 metadata:

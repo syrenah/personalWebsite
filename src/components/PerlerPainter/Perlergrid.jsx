@@ -8,18 +8,18 @@ import FormControlField from '../reusableComponents/FormControlField';
 import { FormControl, InputLabel } from '@mui/material';
 
 
-function ColorPicker({ color, onChange }) {
-  return (
-    <HexColorPicker
-      color={color}
-      onChange={onChange}
-      style={{
-        width: "100%",
-        height: "300px",
-      }}
-    />
-  );
-}
+// function ColorPicker({ color, onChange }) {
+//   return (
+//     <HexColorPicker
+//       color={color}
+//       onChange={onChange}
+//       style={{
+//         width: "100%",
+//         height: "300px",
+//       }}
+//     />
+//   );
+// }
 function Perlergrid() {
   const [width, setWidth] = useState(8);
   const [height, setHeight] = useState(8);
@@ -79,8 +79,8 @@ function Perlergrid() {
   </Stack>
 
 
-
-        <ColorPicker color={color} onChange={setColor} />
+{/* 
+        <ColorPicker color={color} onChange={setColor} /> */}
 
           
       <Grid width={width} height={height} size={size} shape={shape} activeColor={color} gap={4} />

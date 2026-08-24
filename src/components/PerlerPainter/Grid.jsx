@@ -4,7 +4,7 @@ import { Stack } from '@mui/material';
 import SingleSquare from './SingleSquare';
 
 function Grid({ width = 8, height = 8, size = 24,
-   shape = 'square', color = BLACK, activeColor,
+   shape = 'circle', color = BLACK, activeColor,
   style = {} }) {
   const cols = Math.max(0, Math.floor(width));
   const rows = Math.max(0, Math.floor(height));
