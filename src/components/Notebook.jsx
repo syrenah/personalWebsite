@@ -8,7 +8,10 @@ import Boxes from './sortinBoxes/Boxes';
 import {
   Tabs,
   Tab,
-  Box
+  Box,
+  MenuItem,
+  Select,
+  useMediaQuery
 } from '@mui/material';
 
 import { styled } from '@mui/material/styles';
@@ -42,18 +45,24 @@ import { CSS } from '@dnd-kit/utilities';
 // =========================================================
 
 const CuteTab = styled(Tab)(({ theme }) => ({
-  display: 'inline-flex',
+  flex: 1,
+  minWidth: 0,
+
   padding: '10px 20px',
+
   backgroundColor: BRAND_BLUE,
   color: 'white',
+
   marginTop: '5px',
+
   fontWeight: 'bold',
+
   border: '1px solid #ccc',
-  minWidth: 'auto',
 
   '&.Mui-selected': {
     backgroundColor: TERMINAL_BG,
     color: 'white',
+    zIndex: 2,
   },
 
   '&:hover': {
@@ -93,28 +102,30 @@ function SortableTab({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 1000 : 'auto',
-    opacity: isDragging ? 0.7 : 1,
+
+    zIndex: isDragging
+      ? 1000
+      : selected
+        ? 2
+        : 1,
+
+    opacity: isDragging
+      ? 0.7
+      : 1,
+
+    flex: 1,
+    minWidth: 0,
   };
 
 
   return (
 
     <CuteTab
-
       ref={setNodeRef}
-
       value={item.id}
-
       selected={selected}
-
       style={style}
-
       {...attributes}
-
-      // -----------------------------------------------
-      // THIS is what opens the tab
-      // -----------------------------------------------
 
       onClick={() => {
         onSelect(item.id);
@@ -126,27 +137,25 @@ function SortableTab({
           sx={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
+            width: '100%',
+            minWidth: 0,
           }}
         >
-
-          {/* -----------------------------------------
-              Tab name
-          ----------------------------------------- */}
 
           <Box
             component="span"
             sx={{
               userSelect: 'none',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
             }}
           >
             {item.label}
           </Box>
 
-
-          {/* -----------------------------------------
-              Drag handle
-          ----------------------------------------- */}
 
           <Box
             component="span"
@@ -168,6 +177,8 @@ function SortableTab({
               opacity: 0.6,
 
               userSelect: 'none',
+
+              flexShrink: 0,
 
               '&:hover': {
                 opacity: 1,
@@ -226,6 +237,15 @@ function Notebook() {
 
 
   // =======================================================
+  // Responsive breakpoint
+  // =======================================================
+
+  // ⭐ CHANGE
+  // Below 600px, switch to hamburger/dropdown navigation.
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+
+
+  // =======================================================
   // Load saved order
   // =======================================================
 
@@ -257,9 +277,6 @@ function Notebook() {
           )
           .filter(Boolean);
 
-
-      // Add any tabs that don't exist
-      // in the saved configuration yet.
 
       const missing =
         defaultTabs.filter(
@@ -330,14 +347,7 @@ function Notebook() {
   // =======================================================
 
   const handleSelectTab = (id) => {
-
-    console.log(
-      'Opening tab:',
-      id
-    );
-
     setSelectedTab(id);
-
   };
 
 
@@ -430,48 +440,139 @@ function Notebook() {
         strategy={horizontalListSortingStrategy}
       >
 
-        <Box>
+        <Box sx={{ width: '100%' }}>
 
           {/* =================================================
-              TAB BAR
+              NAVIGATION
           ================================================= */}
 
-          <Box sx={{ mb: 1 }}>
+          {isSmallScreen ? (
 
-            <Tabs
-              value={selectedTab}
-              aria-label="Notebook tabs"
-
-              TabIndicatorProps={{
-                style: {
-                  display: 'none',
-                },
+            // ⭐ CHANGE
+            // Mobile hamburger-style dropdown
+            <Box
+              sx={{
+                width: '100%',
+                mb: 1,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
               }}
             >
 
-              {tabs.map(item => (
+              {/* Hamburger icon */}
 
-                <SortableTab
+              <Box
+                sx={{
+                  fontSize: '24px',
+                  color: BRAND_BLUE,
+                  lineHeight: 1,
+                }}
+              >
+                ☰
+              </Box>
 
-                  key={item.id}
 
-                  item={item}
+              <Select
+                value={selectedTab}
+                onChange={(event) => {
+                  handleSelectTab(event.target.value);
+                }}
 
-                  selected={
-                    selectedTab === item.id
-                  }
+                fullWidth
 
-                  onSelect={
-                    handleSelectTab
-                  }
+                size="small"
 
-                />
+                sx={{
+                  backgroundColor: BRAND_BLUE,
+                  color: 'white',
 
-              ))}
+                  '& .MuiSelect-icon': {
+                    color: 'white',
+                  },
 
-            </Tabs>
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: BRAND_BLUE,
+                  },
 
-          </Box>
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: BRAND_BLUE,
+                  },
+                }}
+              >
+
+                {tabs.map(item => (
+
+                  <MenuItem
+                    key={item.id}
+                    value={item.id}
+                  >
+                    {item.label}
+                  </MenuItem>
+
+                ))}
+
+              </Select>
+
+            </Box>
+
+          ) : (
+
+            // =================================================
+            // DESKTOP TABS
+            // =================================================
+
+            <Box
+              sx={{
+                mb: 1,
+                width: '100%',
+              }}
+            >
+
+              <Tabs
+                value={selectedTab}
+                aria-label="Notebook tabs"
+
+                sx={{
+                  width: '100%',
+
+                  '& .MuiTabs-flexContainer': {
+                    width: '100%',
+                    display: 'flex',
+                  },
+
+                  '& .MuiTabs-scroller': {
+                    width: '100%',
+                  },
+                }}
+
+                TabIndicatorProps={{
+                  style: {
+                    display: 'none',
+                  },
+                }}
+              >
+
+                {tabs.map(item => (
+
+                  <SortableTab
+                    key={item.id}
+                    item={item}
+                    selected={
+                      selectedTab === item.id
+                    }
+                    onSelect={
+                      handleSelectTab
+                    }
+                  />
+
+                ))}
+
+              </Tabs>
+
+            </Box>
+
+          )}
 
 
           {/* =================================================
