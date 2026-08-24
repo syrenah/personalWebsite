@@ -1,0 +1,4 @@
+PS C:\Users\syren\projects> $env:Path += ";C:\Program Files\nodejs"
+PS C:\Users\syren\projects> & "C:\Program Files\nodejs\npm.cmd" run build
+PS C:\Users\syren\projects> $env:Path += ";C:\Program Files\nodejs"
+PS C:\Users\syren\projects> & "C:\Program Files\nodejs\npm.cmd" run dev -- --host 0.0.0.0 --port 5174

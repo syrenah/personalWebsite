@@ -1,0 +1,18 @@
+.tile {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+.tile-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.tile-subtitle {
+  color: #475569;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+.tile-body {
+  min-height: 24px;
+}
