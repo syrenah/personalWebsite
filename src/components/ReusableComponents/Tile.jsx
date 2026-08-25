@@ -9,33 +9,29 @@ function Tile({
   link,
   children
 }) {
-  const content = (
+  return (
     <a
-    href= {link}
-     
-  
-    
-     className={["tile", className].filter(Boolean).join(' ')}>
-      {image && (
-        <img
-          className="tile-image"
-          src={image}
-          alt={title || ''}
-        />
-      )}
-   
-      {title && <div className="tile-title">{title}</div>}
-      {subtitle && <div className="tile-subtitle">{subtitle}</div>}
+      href={link}
+      className={['tile', className].filter(Boolean).join(' ')}
+      style={{
+        backgroundImage: image ? `url("${image}")` : undefined,
+      }}
+    >
+      <div className="tile-content">
+        {title && <div className="tile-title">{title}</div>}
 
-      <div className="tile-body">
-        {children}
+        {subtitle && (
+          <div className="tile-subtitle">
+            {subtitle}
+          </div>
+        )}
+
+        <div className="tile-body">
+          {children}
+        </div>
       </div>
     </a>
   );
-
-
-
-  return content;
 }
 
 export default Tile;

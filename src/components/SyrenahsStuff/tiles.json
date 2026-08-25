@@ -2,20 +2,32 @@
   {
     "title": "Rick and Morty",
     "subtitle": "A little bit of interdimensional chaos",
-    "image": "images/rickandmorty.webp",
+    "image": "./images/rickandmorty.webp",
     "link": "https://en.wikipedia.org/wiki/Rick_and_Morty"
   },
   {
     "title": "The Great",
     "subtitle": "An Occasionally True Story ",
-    "image": "images/catherine-the-great.webp",
+    "image": "./images/catherine-the-great.webp",
     "link": "https://en.wikipedia.org/wiki/The_Great_(TV_series)"
   },
   {
     "title": "Texas A&M",
     "subtitle": "Gig 'em!",
-    "image": "/images/texas-am.jpg",
+    "image": "./images/texas-am.jpg",
     "link": "https://www.tamu.edu"
+  },
+  {
+    "title": "Credly",
+    "subtitle": "Hard Earned Certifications",
+    "image": "./images/image.png",
+    "link": "https://www.credly.com/users/syrenah-stein/badges/credly"
+  },
+  {
+    "title": "LinkedIn",
+    "subtitle": "Professional Networking",
+    "image": "./images/image.png",
+    "link": "https://www.linkedin.com/in/syrenah-stein-b883b347/"
   }
  
 ]

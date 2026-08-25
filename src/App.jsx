@@ -16,17 +16,31 @@ function App() {
 
       <Notebook/>
 <NamePopup/>
-      <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="under-construction-title">
-        <DialogTitle id="under-construction-title">Under Construction</DialogTitle>
-        <DialogContent>
-          <Typography>This app is currently under construction. 
-            I just Started this Yesterday.
-            Tip: The Tabs are reorderable </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">Close</Button>
-        </DialogActions>
-      </Dialog>
+    <Dialog
+  open={open}
+  onClose={() => setOpen(false)}
+  aria-labelledby="under-construction-title"
+  maxWidth="xs"
+  fullWidth
+>
+  <DialogTitle id="under-construction-title">
+    Under Construction
+  </DialogTitle>
+
+  <DialogContent>
+    <Typography>
+      This app is currently under construction.
+      I just Started this Yesterday. Check back for new content daily.
+      Tip: The Tabs are reorderable
+    </Typography>
+  </DialogContent>
+
+  <DialogActions>
+    <Button onClick={() => setOpen(false)} color="primary">
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
     </>
   );
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import CommandBuilder from './CommandBuilder';
 import Perlergrid from './PerlerPainter/Perlergrid';
 import Syrenah from './SyrenahsStuff/Syrenah';
-import Boxes from './sortinBoxes/Boxes';
+import SortingBoxes from './sortinBoxes/SortingBoxes';
 
 import {
   Tabs,
@@ -159,32 +159,23 @@ function SortableTab({
 
           <Box
             component="span"
-
             {...listeners}
-
             onClick={(event) => {
               event.stopPropagation();
             }}
-
             sx={{
               cursor: isDragging
                 ? 'grabbing'
                 : 'grab',
-
-              fontSize: '14px',
-              lineHeight: 1,
-
+            //   fontSize: '14px',
+            //   lineHeight: 1,
               opacity: 0.6,
-
               userSelect: 'none',
-
-              flexShrink: 0,
-
+            //   flexShrink: 0,
               '&:hover': {
                 opacity: 1,
               },
             }}
-
             title="Drag to reorder"
           >
             ⋮⋮
@@ -231,7 +222,7 @@ function Notebook() {
     {
       id: 'boxes',
       label: 'Sorting Boxes',
-      component: Boxes,
+      component: SortingBoxes,
     },
   ];
 
@@ -460,17 +451,9 @@ function Notebook() {
               }}
             >
 
-              {/* Hamburger icon */}
 
-              <Box
-                sx={{
-                  fontSize: '24px',
-                  color: BRAND_BLUE,
-                  lineHeight: 1,
-                }}
-              >
-                ☰
-              </Box>
+
+        
 
 
               <Select

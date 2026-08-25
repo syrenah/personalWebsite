@@ -1,21 +1,39 @@
 import React from 'react';
-import SortingVisualizer from './SortingVisualizer';
 
+function Boxes({
+  numbers = [1, 2, 3, 4, 5],
+  gap = 10,
+  boxSize = 30,
+  className = '',
+  spanstyle = {},
+}) {
+  const values = Array.isArray(numbers) ? numbers : [];
 
-function Boxes({ numbers = [1, 2, 3, 4, 5] }) {
   return (
-
-
-
-
-
-
-    <div style={{ display: 'flex', gap: '10px' }}>
-      <SortingVisualizer/>
-      {numbers.map((number, index) => (
-        <div key={index}>
+    <div
+      className={className}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${values.length}, 1fr)`,
+        gap: `${gap}px`,
+        width: '100%',
+        padding:'20px',
+         alignItems: 'end',
+      }}
+    >
+      {values.map((number, index) => (
+        <span
+          key={`${number}-${index}`}
+          style={{
+            height: `${Math.min(boxSize + number, 150)}px`,
+            border: '1px solid black',
+            boxSizing: 'border-box',
+            textAlign: 'center',
+            ...spanstyle
+          }}
+        >
           {number}
-        </div>
+        </span>
       ))}
     </div>
   );
