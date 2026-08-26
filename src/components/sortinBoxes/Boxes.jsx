@@ -2,7 +2,7 @@ import React from 'react';
 
 function Boxes({
   numbers = [1, 2, 3, 4, 5],
-  gap = 10,
+  gap = 0,
   boxSize = 30,
   className = '',
   spanstyle = {},
@@ -17,8 +17,8 @@ function Boxes({
         gridTemplateColumns: `repeat(${values.length}, 1fr)`,
         gap: `${gap}px`,
         width: '100%',
-        padding:'20px',
-         alignItems: 'end',
+        // padding:'20px',
+          alignItems: 'end',
       }}
     >
       {values.map((number, index) => (
@@ -26,6 +26,7 @@ function Boxes({
           key={`${number}-${index}`}
           style={{
             height: `${Math.min(boxSize + number, 150)}px`,
+            //  width: '25px',
             border: '1px solid black',
             boxSizing: 'border-box',
             textAlign: 'center',

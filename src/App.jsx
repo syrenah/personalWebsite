@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Notebook from './components/Notebook';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
 import NamePopup from './NamePopup';
+import OutlookPortal from './components/OutlookPortal';
+
 function App() {
   const [open, setOpen] = useState(false);
 
@@ -12,9 +14,15 @@ function App() {
 
   return (
     <>
+
+<OutlookPortal/>
+
+
+
      Hi {localStorage.getItem('name')}
 
-      <Notebook/>
+      {/* <Notebook/> */}
+{/*       
 <NamePopup/>
     <Dialog
   open={open}
@@ -40,7 +48,10 @@ function App() {
       Close
     </Button>
   </DialogActions>
-</Dialog>
+</Dialog> */}
+
+
+
     </>
   );
 }

@@ -419,7 +419,8 @@ function Notebook() {
   // =======================================================
 
   return (
-
+    <>
+    
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
@@ -575,7 +576,7 @@ function Notebook() {
       </SortableContext>
 
     </DndContext>
-
+</>
   );
 }
 
