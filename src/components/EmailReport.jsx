@@ -141,10 +141,12 @@ function EmailReport({
     <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
       <Toolbar
         sx={{
-          background:
-            selectedEmails.length > 0
-              ? 'linear-gradient(90deg, #fff1f2, #fff7ed)'
-              : 'linear-gradient(90deg, #f0f9ff, #eef2ff)',
+
+             background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
+          // background:
+          //   selectedEmails.length > 0
+          //     ? 'linear-gradient(90deg, #fff1f2, #fff7ed)'
+          //     : 'linear-gradient(90deg, #f0f9ff, #eef2ff)',
           borderBottom: '1px solid #e5e7eb',
         }}
       >

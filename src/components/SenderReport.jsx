@@ -41,14 +41,19 @@ function SenderReport({
       <Box
         sx={{
           p: 2,
-          background: 'linear-gradient(90deg, #eef2ff, #fdf4ff)',
+          background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
         }}
       >
         <Stack direction="row" alignItems="center" gap={1}>
           <Typography variant="h6" fontWeight="bold">
             Senders
           </Typography>
-          <Chip
+          <Chip 
+          
+          sx={{
+        
+          background: '#7209c9',
+        }}
             size="small"
             label={`${senders.length} senders`}
             color="primary"
@@ -56,8 +61,7 @@ function SenderReport({
         </Stack>
 
         <Typography variant="body2" color="text.secondary">
-          Select senders to filter the email table. We also inspect one email
-          from each sender for an unsubscribe header.
+          Select senders to filter the email table.
         </Typography>
       </Box>
 
@@ -120,7 +124,10 @@ function SenderReport({
                   </TableCell> */}
 
                   <TableCell sx={{ width: 60 }}  align="right">
-                    <Chip label={count} color="primary" size="small" />
+                    <Chip     sx={{
+        
+          background: '#7209c9',
+        }} label={count} color="primary" size="small" />
                   </TableCell>
 
                   <TableCell sx={{ width: 60 }} >
@@ -148,6 +155,10 @@ function SenderReport({
                       </Stack>
                     ) : (
                       <Chip
+                       sx={{
+        
+          background: 'rgb(224, 193, 250)',
+        }}
                         size="small"
                         label="None found"
                         variant="outlined"
