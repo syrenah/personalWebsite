@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Notebook from './components/Notebook';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
-import NamePopup from './NamePopup';
-import OutlookPortal from './components/OutlookPortal';
+// import Notebook from './components/Notebook';
+// import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
+// import NamePopup from './NamePopup';
+import OutlookReport from './OutlookReport';
+// import OutlookPortal from './OutlookPortal';
 
 function App() {
   const [open, setOpen] = useState(false);
@@ -15,11 +16,11 @@ function App() {
   return (
     <>
 
-<OutlookPortal/>
+<OutlookReport/>
 
 
 
-     Hi {localStorage.getItem('name')}
+     {/* Hi {localStorage.getItem('name')} */}
 
       {/* <Notebook/> */}
 {/*       
