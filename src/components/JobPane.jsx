@@ -27,10 +27,10 @@ function JobPane({ jobs = EMPTY_JOBS }) {
             ⚙️ Jobs
           </Typography>
 
-          <Chip
+          {/* <Chip
             size="small"
             label={activeJobs.length}
-          />
+          /> */}
         </Stack>
       </Box>
 
