@@ -293,7 +293,7 @@ function EmailReport({
                       variant="body2"
                       color="text.secondary"
                     >
-                      Select a report timeframe and load your emails.
+                      Select a sender.
                     </Typography>
                   </Box>
                 </TableCell>
