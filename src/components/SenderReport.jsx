@@ -1,9 +1,13 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
+  Button,
   Checkbox,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   IconButton,
   Paper,
@@ -31,7 +35,60 @@ function SenderReport({
   onBlockSender,
   getUnsubscribeLinks,
 }) {
+  const [unsubscribeDialogOpen, setUnsubscribeDialogOpen] =
+    useState(false);
 
+  const [selectedSender, setSelectedSender] = useState(null);
+
+  const [unsubscribeLinks, setUnsubscribeLinks] = useState([]);
+
+  const [loadingUnsubscribe, setLoadingUnsubscribe] =
+    useState(false);
+
+  const handleUnsubscribeClick = async (
+    event,
+    senderEmail
+  ) => {
+    event.stopPropagation();
+
+    console.log(
+      'UNSUBSCRIBE CLICKED:',
+      senderEmail
+    );
+
+    setSelectedSender(senderEmail);
+    setUnsubscribeLinks([]);
+    setUnsubscribeDialogOpen(true);
+    setLoadingUnsubscribe(true);
+
+    try {
+      console.log(
+        'Calling getUnsubscribeLinks:',
+        senderEmail
+      );
+
+      const links = await getUnsubscribeLinks(
+        senderEmail
+      );
+
+      console.log('Returned links:', links);
+
+      setUnsubscribeLinks(links || []);
+    } catch (error) {
+      console.error(
+        'Unable to get unsubscribe links:',
+        error
+      );
+
+      setUnsubscribeLinks([]);
+    } finally {
+      setLoadingUnsubscribe(false);
+    }
+  };
+
+  const handleCloseUnsubscribeDialog = () => {
+    setUnsubscribeDialogOpen(false);
+  };
 
   return (
     <Paper
@@ -46,11 +103,19 @@ function SenderReport({
       <Box
         sx={{
           p: 2,
-          background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
+          background:
+            'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
         }}
       >
-        <Stack direction="row" alignItems="center" gap={1}>
-          <Typography variant="h6" fontWeight="bold">
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap={1}
+        >
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+          >
             Senders
           </Typography>
 
@@ -65,7 +130,11 @@ function SenderReport({
           />
         </Stack>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 0.5 }}
+        >
           Select senders to filter the email table.
         </Typography>
 
@@ -80,22 +149,28 @@ function SenderReport({
             >
               {selectedSenders.map((email) => {
                 const senderInfo = senders.find(
-                  (item) => item.senderEmail === email
+                  (item) =>
+                    item.senderEmail === email
                 );
 
                 return (
                   <Chip
                     key={email}
-                    label={senderInfo?.sender || email}
+                    label={
+                      senderInfo?.sender || email
+                    }
                     size="small"
-                    onDelete={() => onSenderToggle(email)}
+                    onDelete={() =>
+                      onSenderToggle(email)
+                    }
                     sx={{
                       background: '#7209c9',
                       color: 'white',
                       fontWeight: 500,
 
                       '& .MuiChip-deleteIcon': {
-                        color: 'rgba(255,255,255,0.75)',
+                        color:
+                          'rgba(255,255,255,0.75)',
                         fontSize: 18,
 
                         '&:hover': {
@@ -135,15 +210,19 @@ function SenderReport({
           <TableHead>
             <TableRow>
               <TableCell sx={{ width: 60 }} />
+
               <TableCell sx={{ width: 'auto' }}>
                 <strong>Sender</strong>
               </TableCell>
+
               <TableCell sx={{ width: 75 }}>
                 <strong>Count</strong>
               </TableCell>
+
               <TableCell sx={{ width: 120 }}>
                 <strong>Unsubscribe</strong>
               </TableCell>
+
               <TableCell sx={{ width: 75 }}>
                 <strong>Block</strong>
               </TableCell>
@@ -151,156 +230,246 @@ function SenderReport({
           </TableHead>
 
           <TableBody>
-            {senders.map(({ sender, senderEmail, count }) => {
-              const unsubscribeLinks =
-                getUnsubscribeLinks(senderEmail);
+            {senders.map(
+              ({
+                sender,
+                senderEmail,
+                count,
+              }) => {
+                const selected =
+                  selectedSenders.includes(
+                    senderEmail
+                  );
 
-              const selected =
-                selectedSenders.includes(senderEmail);
+                return (
+                  <TableRow
+                    key={
+                      senderEmail || sender
+                    }
+                    hover
+                    selected={selected}
+                    sx={{
+                      cursor: 'pointer',
 
-              return (
-                <TableRow
-                  key={senderEmail || sender}
-                  hover
-                  selected={selected}
-                  onClick={() => onSenderToggle(senderEmail)}
-                  sx={{
-                    cursor: 'pointer',
+                      '&.Mui-selected': {
+                        backgroundColor:
+                          'rgba(103, 58, 183, 0.08)',
+                      },
 
-                    '&.Mui-selected': {
-                      backgroundColor:
-                        'rgba(103, 58, 183, 0.08)',
-                    },
-
-                    '&.Mui-selected:hover': {
-                      backgroundColor:
-                        'rgba(103, 58, 183, 0.14)',
-                    },
-                  }}
-                >
-                  {/* Checkbox */}
-                  <TableCell>
-                    <Checkbox
-                      checked={selected}
-                      onClick={(event) =>
-                        event.stopPropagation()
-                      }
-                      onChange={() =>
-                        onSenderToggle(senderEmail)
-                      }
-                    />
-                  </TableCell>
-
-                  {/* Sender */}
-                  <TableCell sx={{ width: 'auto' }}>
-                    <Typography fontWeight={600}>
-                      {sender}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {senderEmail}
-                    </Typography>
-                  </TableCell>
-
-                  {/* Count */}
-                  <TableCell
-                    sx={{ width: 60 }}
-                    align="right"
+                      '&.Mui-selected:hover': {
+                        backgroundColor:
+                          'rgba(103, 58, 183, 0.14)',
+                      },
+                    }}
                   >
-                    <Chip
-                      label={count}
-                      size="small"
-                      sx={{
-                        background: '#7209c9',
-                        color: 'white',
-                        fontWeight: 600,
-                      }}
-                    />
-                  </TableCell>
+                    {/* Checkbox */}
+                    <TableCell>
+                      <Checkbox
+                        checked={selected}
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
+                        onChange={() =>
+                          onSenderToggle(
+                            senderEmail
+                          )
+                        }
+                      />
+                    </TableCell>
 
-                  {/* Unsubscribe */}
-                  <TableCell sx={{ width: 60 }}>
-                    {unsubscribeLinks.length > 0 ? (
-                      <Stack
-                        direction="row"
-                        gap={0.5}
+                    {/* Sender */}
+                    <TableCell
+                      sx={{ width: 'auto' }}
+                    >
+                      <Typography
+                        fontWeight={600}
                       >
-                        {unsubscribeLinks.map((link) => (
-                          <Tooltip
-                            key={link}
-                            title={link}
-                          >
-                            <IconButton
-                              size="small"
-                              component="a"
-                              href={link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(event) =>
-                                event.stopPropagation()
-                              }
-                              sx={{
-                                color: 'success.main',
-                              }}
-                            >
-                              {link.startsWith('mailto:') ? (
-                                <EmailIcon />
-                              ) : (
-                                <LinkIcon />
-                              )}
-                            </IconButton>
-                          </Tooltip>
-                        ))}
-                      </Stack>
-                    ) : (
+                        {sender}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          overflow: 'hidden',
+                          textOverflow:
+                            'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {senderEmail}
+                      </Typography>
+                    </TableCell>
+
+                    {/* Count */}
+                    <TableCell
+                      sx={{ width: 60 }}
+                      align="right"
+                    >
                       <Chip
+                        label={count}
                         size="small"
-                        label="None found"
-                        variant="outlined"
                         sx={{
                           background:
-                            'rgb(224, 193, 250)',
+                            '#7209c9',
+                          color: 'white',
+                          fontWeight: 600,
                         }}
                       />
-                    )}
-                  </TableCell>
+                    </TableCell>
 
-                  {/* Block */}
-                  <TableCell>
-                    <Tooltip
-                      title={`Block ${senderEmail}`}
+                    {/* Unsubscribe */}
+                    <TableCell
+                      sx={{ width: 60 }}
                     >
-                      <IconButton
-                        color="error"
-                        onClick={(event) => {
-                          event.stopPropagation();
+                      <Tooltip title="Find unsubscribe link">
+                        <IconButton
+                          size="small"
+                          onClick={(event) =>
+                            handleUnsubscribeClick(
+                              event,
+                              senderEmail
+                            )
+                          }
+                          sx={{
+                            color:
+                              'success.main',
+                          }}
+                        >
+                          <LinkIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
 
-                          onBlockSender({
-                            sender,
-                            senderEmail,
-                          });
-                        }}
+                    {/* Block */}
+                    <TableCell>
+                      <Tooltip
+                        title={`Block ${senderEmail}`}
                       >
-                        <BlockIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                        <IconButton
+                          color="error"
+                          onClick={(event) => {
+                            event.stopPropagation();
+
+                            onBlockSender({
+                              sender,
+                              senderEmail,
+                            });
+                          }}
+                        >
+                          <BlockIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+            )}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Unsubscribe dialog */}
+      <Dialog
+        open={unsubscribeDialogOpen}
+        onClose={
+          handleCloseUnsubscribeDialog
+        }
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          Unsubscribe
+        </DialogTitle>
+
+        <DialogContent>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mb: 2 }}
+          >
+            {selectedSender}
+          </Typography>
+
+          {loadingUnsubscribe && (
+            <Typography>
+              Looking for an unsubscribe link...
+            </Typography>
+          )}
+
+          {!loadingUnsubscribe &&
+            unsubscribeLinks.length > 0 && (
+              <>
+                <Typography
+                  color="warning.main"
+                  fontWeight={600}
+                  sx={{ mb: 2 }}
+                >
+                  ⚠️ Be careful when opening
+                  unsubscribe links. Only continue
+                  if you recognize the sender.
+                </Typography>
+
+                <Stack spacing={1}>
+                  {unsubscribeLinks.map(
+                    (link) => (
+                      <Button
+                        key={link}
+                        component="a"
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="outlined"
+                        startIcon={
+                          link.startsWith(
+                            'mailto:'
+                          ) ? (
+                            <EmailIcon />
+                          ) : (
+                            <LinkIcon />
+                          )
+                        }
+                        sx={{
+                          justifyContent:
+                            'flex-start',
+                          textTransform:
+                            'none',
+                          wordBreak:
+                            'break-all',
+                        }}
+                      >
+                        {link}
+                      </Button>
+                    )
+                  )}
+                </Stack>
+              </>
+            )}
+
+          {!loadingUnsubscribe &&
+            unsubscribeLinks.length === 0 && (
+              <Typography
+                color="text.secondary"
+              >
+                No unsubscribe link was found
+                for this sender.
+              </Typography>
+            )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            onClick={
+              handleCloseUnsubscribeDialog
+            }
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 }
 
 export default SenderReport;
+

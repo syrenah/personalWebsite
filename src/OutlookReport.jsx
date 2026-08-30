@@ -161,109 +161,85 @@ const [jobs, setJobs] = useState([]);
   }, [account,timeframe]);
 
 
-  const senderData = useMemo(() => {
-    const groups = {};
+ const senderData = useMemo(() => {
+  const groups = {};
 
-    allEmails.forEach((email) => {
-      const key = email.senderEmail || email.sender || 'Unknown';
+  allEmails.forEach((email) => {
+    const key =
+      email.senderEmail ||
+      email.sender ||
+      'Unknown';
 
-      if (!groups[key]) {
-        groups[key] = {
-          sender: email.sender || 'Unknown',
-          senderEmail: email.senderEmail || '',
-          count: 0,
-        };
-      }
+    if (!groups[key]) {
+      groups[key] = {
+        sender: email.sender || 'Unknown',
+        senderEmail: email.senderEmail || '',
+        count: 0,
+        unsubscribeLinks: email.unsubscribeLinks || [],
+      };
+    }
 
-      groups[key].count += 1;
-    });
+    groups[key].count += 1;
 
-    return Object.values(groups).sort((a, b) => b.count - a.count);
-  }, [allEmails]);
+    // Keep unsubscribe links if we find them
+    if (
+      email.unsubscribeLinks?.length > 0 &&
+      groups[key].unsubscribeLinks.length === 0
+    ) {
+      groups[key].unsubscribeLinks = email.unsubscribeLinks;
+    }
+  });
 
-
-
- const findUnsubscribeLinks = async () => {
-      // try {
-        const accessToken = await getAccessToken(account);
-
-        // if (!accessToken) {
-        //   return;
-        // }
-
-        // const updatedEmails = [...emails];
-
-        // for (const sender of senderData) {
-        //   const matchingEmail = updatedEmails.find(
-        //     (email) => email.senderEmail === sender.senderEmail
-        //   );
-
-        //   if (!matchingEmail) {
-        //     continue;
-        //   }
-
-        //   try {
-        //     const data = await getMessageHeaders(
-        //       accessToken,
-        //       matchingEmail.id
-        //     );
-
-        //     if (!data) {
-        //       continue;
-        //     }
-
-        //     const links = extractUnsubscribeLinks(
-        //       data.internetMessageHeaders
-        //     );
-
-        //     if (links.length > 0) {
-        //       setEmails((current) =>
-        //         current.map((email) => {
-        //           if (email.senderEmail !== sender.senderEmail) {
-        //             return email;
-        //           }
-
-        //           return {
-        //             ...email,
-        //             unsubscribeLinks: links,
-        //           };
-        //         })
-        //       );
-        //     }
-      //     } catch (err) {
-      //       console.error(
-      //         'Unable to inspect unsubscribe header:',
-      //         err
-      //       );
-      //     }
-      //   }
-      // } catch (err) {
-      //   console.error(err);
-      // }
-    };
-
-  // useEffect(() => {
-  //   if (!account || !senderData.length) {
-  //     return;
-  //   }
+  return Object.values(groups).sort(
+    (a, b) => b.count - a.count
+  );
+}, [allEmails]);
 
 
-  //   findUnsubscribeLinks();
-  //   // Intentionally only runs when the sender collection changes.
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [account]);
+const findUnsubscribeLinks = async (senderEmail) => {
+  if (!account || !senderEmail) {
+    return [];
+  }
+console.log(senderEmail)
+  try {
+    const email = allEmails.find(
+      (email) => email.senderEmail === senderEmail
+    );
 
+    if (!email) {
+      return [];
+    }
 
+    const accessToken = await getAccessToken(account);
 
-  // const getSenderUnsubscribeLinks = (senderEmail) => {
-  //   const email = emails.find(
-  //     (item) =>
-  //       item.senderEmail === senderEmail &&
-  //       item.unsubscribeLinks?.length
-  //   );
+    if (!accessToken) {
+      return [];
+    }
 
-  //   return email?.unsubscribeLinks || [];
-  // };
+    const data = await getMessageHeaders(
+      accessToken,
+      email.id
+    );
+
+    if (!data?.internetMessageHeaders) {
+      return [];
+    }
+
+    console.log(data);
+
+    return extractUnsubscribeLinks(
+      data.internetMessageHeaders
+    );
+  } catch (err) {
+    console.error(
+      `Unable to find unsubscribe links for ${senderEmail}:`,
+      err
+    );
+
+    return [];
+  }
+};
+
 
   const handleEmailClick = async (email) => {
     setsingleEmail({
@@ -430,6 +406,7 @@ const createDeleteJob = async (emailIds, accessToken) => {
     completed: 0,
     failed: 0,
     status: 'running',
+    emails: emailsSelectedForDeletion
   };
  setemailsSelectedForViewing((current) =>
   current.filter((email) => !emailIds.includes(email.id))
