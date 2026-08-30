@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Box,
@@ -16,6 +17,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+
 import {
   Block as BlockIcon,
   Email as EmailIcon,
@@ -29,6 +31,8 @@ function SenderReport({
   onBlockSender,
   getUnsubscribeLinks,
 }) {
+
+
   return (
     <Paper
       elevation={3}
@@ -38,6 +42,7 @@ function SenderReport({
         overflow: 'hidden',
       }}
     >
+      {/* Header */}
       <Box
         sx={{
           p: 2,
@@ -48,46 +53,110 @@ function SenderReport({
           <Typography variant="h6" fontWeight="bold">
             Senders
           </Typography>
-          <Chip 
-          
-          sx={{
-        
-          background: '#7209c9',
-        }}
+
+          <Chip
             size="small"
             label={`${senders.length} senders`}
-            color="primary"
+            sx={{
+              background: '#7209c9',
+              color: 'white',
+              fontWeight: 600,
+            }}
           />
         </Stack>
 
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
           Select senders to filter the email table.
         </Typography>
+
+        {/* Selected sender pills */}
+        {selectedSenders.length > 0 && (
+          <Box sx={{ mt: 1.5 }}>
+            <Stack
+              direction="row"
+              spacing={0.75}
+              useFlexGap
+              flexWrap="wrap"
+            >
+              {selectedSenders.map((email) => {
+                const senderInfo = senders.find(
+                  (item) => item.senderEmail === email
+                );
+
+                return (
+                  <Chip
+                    key={email}
+                    label={senderInfo?.sender || email}
+                    size="small"
+                    onDelete={() => onSenderToggle(email)}
+                    sx={{
+                      background: '#7209c9',
+                      color: 'white',
+                      fontWeight: 500,
+
+                      '& .MuiChip-deleteIcon': {
+                        color: 'rgba(255,255,255,0.75)',
+                        fontSize: 18,
+
+                        '&:hover': {
+                          color: 'white',
+                        },
+                      },
+
+                      '&:hover': {
+                        background: '#5f08a8',
+                      },
+                    }}
+                  />
+                );
+              })}
+            </Stack>
+          </Box>
+        )}
       </Box>
 
       <Divider />
 
-      <TableContainer sx={{ maxHeight: 350 , width: '100%',
-    overflowX: 'hidden', }}>
-        <Table stickyHeader  sx={{
-      tableLayout: 'fixed',
-      width: '100%',
-    }}   >
+      {/* Sender table */}
+      <TableContainer
+        sx={{
+          maxHeight: 350,
+          width: '100%',
+          overflowX: 'hidden',
+        }}
+      >
+        <Table
+          stickyHeader
+          sx={{
+            tableLayout: 'fixed',
+            width: '100%',
+          }}
+        >
           <TableHead>
             <TableRow>
-              <TableCell  sx={{ width: 60 }} />
-              <TableCell sx={{ width: 'auto' }} ><strong>Sender</strong></TableCell>
-              {/* <TableCell><strong>Email</strong></TableCell> */}
-              <TableCell  sx={{ width: 75 }} ><strong>Count</strong></TableCell>
-              <TableCell  sx={{ width: 120 }}><strong>Unsubscribe</strong></TableCell>
-              <TableCell sx={{ width: 75 }} ><strong>Block</strong></TableCell>
+              <TableCell sx={{ width: 60 }} />
+              <TableCell sx={{ width: 'auto' }}>
+                <strong>Sender</strong>
+              </TableCell>
+              <TableCell sx={{ width: 75 }}>
+                <strong>Count</strong>
+              </TableCell>
+              <TableCell sx={{ width: 120 }}>
+                <strong>Unsubscribe</strong>
+              </TableCell>
+              <TableCell sx={{ width: 75 }}>
+                <strong>Block</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {senders.map(({ sender, senderEmail, count }) => {
-              const unsubscribeLinks = getUnsubscribeLinks(senderEmail);
-              const selected = selectedSenders.includes(senderEmail);
+              const unsubscribeLinks =
+                getUnsubscribeLinks(senderEmail);
+
+              const selected =
+                selectedSenders.includes(senderEmail);
 
               return (
                 <TableRow
@@ -97,52 +166,90 @@ function SenderReport({
                   onClick={() => onSenderToggle(senderEmail)}
                   sx={{
                     cursor: 'pointer',
+
                     '&.Mui-selected': {
-                      backgroundColor: 'rgba(103,58,183,.08)',
+                      backgroundColor:
+                        'rgba(103, 58, 183, 0.08)',
+                    },
+
+                    '&.Mui-selected:hover': {
+                      backgroundColor:
+                        'rgba(103, 58, 183, 0.14)',
                     },
                   }}
                 >
-                  <TableCell  >
+                  {/* Checkbox */}
+                  <TableCell>
                     <Checkbox
                       checked={selected}
-                      onClick={(event) => event.stopPropagation()}
-                      onChange={() => onSenderToggle(senderEmail)}
+                      onClick={(event) =>
+                        event.stopPropagation()
+                      }
+                      onChange={() =>
+                        onSenderToggle(senderEmail)
+                      }
                     />
                   </TableCell>
 
-                  <TableCell  sx={{ width: 'auto' }}     >
-                    <Typography fontWeight={600}>{sender}</Typography>
+                  {/* Sender */}
+                  <TableCell sx={{ width: 'auto' }}>
+                    <Typography fontWeight={600}>
+                      {sender}
+                    </Typography>
 
-                     {senderEmail}
-
-                  </TableCell>
-
-                  {/* <TableCell>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {senderEmail}
                     </Typography>
-                  </TableCell> */}
-
-                  <TableCell sx={{ width: 60 }}  align="right">
-                    <Chip     sx={{
-        
-          background: '#7209c9',
-        }} label={count} color="primary" size="small" />
                   </TableCell>
 
-                  <TableCell sx={{ width: 60 }} >
+                  {/* Count */}
+                  <TableCell
+                    sx={{ width: 60 }}
+                    align="right"
+                  >
+                    <Chip
+                      label={count}
+                      size="small"
+                      sx={{
+                        background: '#7209c9',
+                        color: 'white',
+                        fontWeight: 600,
+                      }}
+                    />
+                  </TableCell>
+
+                  {/* Unsubscribe */}
+                  <TableCell sx={{ width: 60 }}>
                     {unsubscribeLinks.length > 0 ? (
-                      <Stack direction="row" gap={0.5}>
+                      <Stack
+                        direction="row"
+                        gap={0.5}
+                      >
                         {unsubscribeLinks.map((link) => (
-                          <Tooltip key={link} title={link}>
+                          <Tooltip
+                            key={link}
+                            title={link}
+                          >
                             <IconButton
                               size="small"
                               component="a"
                               href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              onClick={(event) => event.stopPropagation()}
-                              sx={{ color: 'success.main' }}
+                              onClick={(event) =>
+                                event.stopPropagation()
+                              }
+                              sx={{
+                                color: 'success.main',
+                              }}
                             >
                               {link.startsWith('mailto:') ? (
                                 <EmailIcon />
@@ -155,24 +262,31 @@ function SenderReport({
                       </Stack>
                     ) : (
                       <Chip
-                       sx={{
-        
-          background: 'rgb(224, 193, 250)',
-        }}
                         size="small"
                         label="None found"
                         variant="outlined"
+                        sx={{
+                          background:
+                            'rgb(224, 193, 250)',
+                        }}
                       />
                     )}
                   </TableCell>
 
+                  {/* Block */}
                   <TableCell>
-                    <Tooltip title={`Block ${senderEmail}`}>
+                    <Tooltip
+                      title={`Block ${senderEmail}`}
+                    >
                       <IconButton
                         color="error"
                         onClick={(event) => {
                           event.stopPropagation();
-                          onBlockSender({ sender, senderEmail });
+
+                          onBlockSender({
+                            sender,
+                            senderEmail,
+                          });
                         }}
                       >
                         <BlockIcon />

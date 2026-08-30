@@ -3,7 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,14 +18,13 @@ function DeleteEmailsDialog({
   open,
   emails,
   selectedEmails,
-  loading,
   onClose,
   onConfirm,
 }) {
   return (
     <Dialog
       open={open}
-      onClose={loading ? null : onClose}
+      onClose={onClose}
       maxWidth="md"
       fullWidth
     >
@@ -89,7 +87,7 @@ function DeleteEmailsDialog({
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
+        <Button onClick={onClose} >
           Cancel
         </Button>
 
@@ -97,16 +95,13 @@ function DeleteEmailsDialog({
           variant="contained"
           color="error"
           startIcon={
-            loading ? (
-              <CircularProgress size={18} color="inherit" />
-            ) : (
-              <DeleteIcon />
-            )
+              <DeleteIcon /> 
+          
           }
           onClick={onConfirm}
-          disabled={loading}
+        
         >
-          {loading ? 'Moving...' : 'Move to Deleted Items'}
+      Move
         </Button>
       </DialogActions>
     </Dialog>

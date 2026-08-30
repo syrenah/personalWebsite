@@ -8,7 +8,7 @@ import {
   DialogTitle,
   Divider,
   IconButton,
-  Paper,
+  Paper,Alert,
   Stack,
   Typography,
 } from '@mui/material';
@@ -76,7 +76,9 @@ function EmailDialog({ email, loading, sanitizedBody, onClose }) {
               <Typography>
                 <strong>Received:</strong> {formatDate(email?.received)}
               </Typography>
-
+  <Alert severity="info" sx={{ mb: 2 }}>
+          Careful clicking on links including unsubscribe links!
+        </Alert>
               {email?.unsubscribeLinks?.length > 0 && (
                 <Stack
                   direction="row"

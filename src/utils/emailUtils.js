@@ -1,3 +1,41 @@
+import DOMPurify from 'dompurify';
+export const sanitizedBody = (body) => {
+   if (!body) {
+       return '';
+     }
+ 
+     return DOMPurify.sanitize(body, {
+       USE_PROFILES: {
+         html: true,
+       },
+       FORBID_TAGS: [
+         'script',
+         'iframe',
+         'object',
+         'embed',
+         'form',
+         'input',
+         'button',
+         'textarea',
+         'select',
+         'meta',
+         'link',
+       ],
+       FORBID_ATTR: [
+         'onerror',
+         'onload',
+         'onclick',
+         'onmouseover',
+         'onfocus',
+         'onmouseenter',
+         'onmouseleave',
+       ],
+     });
+};
+
+
+
+
 export const formatDate = (dateString) => {
   if (!dateString) return '';
 

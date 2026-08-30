@@ -17,7 +17,11 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import { Delete as DeleteIcon, Email as EmailIcon } from '@mui/icons-material';
+import {
+  Delete as DeleteIcon,
+  Email as EmailIcon,
+} from '@mui/icons-material';
+
 import {
   flexRender,
   getCoreRowModel,
@@ -25,12 +29,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+
 import { formatDate } from '../utils/emailUtils';
 
 function EmailReport({
-  emails,
-  selectedSenders,
-  selectedEmails,
+  selectedEmails = [],
+  emailsSelectedForDeletion = [],
   loading,
   onEmailClick,
   onToggleEmail,
@@ -38,54 +42,78 @@ function EmailReport({
   onDelete,
 }) {
   const allVisibleSelected =
-    emails.length > 0 &&
-    emails.every((email) => selectedEmails.includes(email.id));
+    selectedEmails.length > 0 &&
+    selectedEmails.every((email) =>
+      emailsSelectedForDeletion.includes(email.id)
+    );
+
+  const someVisibleSelected =
+    selectedEmails.some((email) =>
+      emailsSelectedForDeletion.includes(email.id)
+    ) && !allVisibleSelected;
 
   const columns = useMemo(
     () => [
       {
         id: 'select',
+
         header: () => (
           <Checkbox
             checked={allVisibleSelected}
-            indeterminate={selectedEmails.length > 0 && !allVisibleSelected}
+            indeterminate={someVisibleSelected}
             onChange={onToggleSelectAll}
           />
         ),
+
         cell: ({ row }) => (
           <Checkbox
-            checked={selectedEmails.includes(row.original.id)}
+            checked={emailsSelectedForDeletion.includes(row.original.id)}
             onChange={() => onToggleEmail(row.original.id)}
             onClick={(event) => event.stopPropagation()}
           />
         ),
+
         enableSorting: false,
       },
+
       {
         accessorKey: 'sender',
         header: 'Sender',
       },
+
       {
         accessorKey: 'senderEmail',
         header: 'Email',
       },
+
       {
         accessorKey: 'subject',
         header: 'Subject',
+
         cell: ({ getValue }) => (
-          <Typography noWrap sx={{ maxWidth: 350, fontWeight: 500 }}>
+          <Typography
+            noWrap
+            sx={{
+              maxWidth: 350,
+              fontWeight: 500,
+            }}
+          >
             {getValue()}
           </Typography>
         ),
       },
+
       {
         accessorKey: 'received',
         header: 'Received',
+
         cell: ({ getValue }) => formatDate(getValue()),
       },
+
       {
         accessorKey: 'status',
         header: 'Status',
+
         cell: ({ getValue }) => (
           <Chip
             size="small"
@@ -95,41 +123,24 @@ function EmailReport({
           />
         ),
       },
-      {
-        accessorKey: 'attachment',
-        header: 'Attachment',
-        cell: ({ getValue }) => (
-          <Chip
-            size="small"
-            label={getValue() === 'Yes' ? 'Yes' : 'No'}
-            color={getValue() === 'Yes' ? 'secondary' : 'default'}
-          />
-        ),
-      },
-      {
-        id: 'delete',
-        header: 'Delete',
-        cell: ({ row }) => (
-          <Checkbox
-            checked={selectedEmails.includes(row.original.id)}
-            onChange={() => onToggleEmail(row.original.id)}
-            onClick={(event) => event.stopPropagation()}
-            icon={<DeleteIcon sx={{ opacity: 0.35 }} />}
-            checkedIcon={<DeleteIcon color="error" />}
-          />
-        ),
-        enableSorting: false,
-      },
     ],
-    [allVisibleSelected, selectedEmails, onToggleEmail, onToggleSelectAll]
+    [
+      allVisibleSelected,
+      someVisibleSelected,
+      emailsSelectedForDeletion,
+      onToggleEmail,
+      onToggleSelectAll,
+    ]
   );
 
   const table = useReactTable({
-    data: emails,
+    data: selectedEmails,
     columns,
+
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+
     initialState: {
       pagination: {
         pageSize: 25,
@@ -138,15 +149,16 @@ function EmailReport({
   });
 
   return (
-    <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+    <Paper
+      elevation={3}
+      sx={{
+        borderRadius: 3,
+        overflow: 'hidden',
+      }}
+    >
       <Toolbar
         sx={{
-
-             background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
-          // background:
-          //   selectedEmails.length > 0
-          //     ? 'linear-gradient(90deg, #fff1f2, #fff7ed)'
-          //     : 'linear-gradient(90deg, #f0f9ff, #eef2ff)',
+          background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
           borderBottom: '1px solid #e5e7eb',
         }}
       >
@@ -158,21 +170,23 @@ function EmailReport({
           gap={2}
         >
           <Box>
-            <Typography variant="h6" fontWeight="bold">
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+            >
               Emails
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {selectedSenders.length > 0
-                ? `Showing emails from ${selectedSenders.length} selected sender${selectedSenders.length === 1 ? '' : 's'}`
-                : 'Showing all senders'}
             </Typography>
           </Box>
 
-          <Stack direction="row" alignItems="center" gap={1}>
-            {selectedEmails.length > 0 && (
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={1}
+          >
+            {emailsSelectedForDeletion.length > 0 && (
               <Chip
                 color="error"
-                label={`${selectedEmails.length} selected`}
+                label={`${emailsSelectedForDeletion.length} selected`}
               />
             )}
 
@@ -180,7 +194,7 @@ function EmailReport({
               variant="contained"
               color="error"
               startIcon={<DeleteIcon />}
-              disabled={selectedEmails.length === 0}
+              disabled={emailsSelectedForDeletion.length === 0}
               onClick={onDelete}
             >
               Delete
@@ -205,8 +219,12 @@ function EmailReport({
                         : undefined
                     }
                     sx={{
-                      cursor: header.column.getCanSort() ? 'pointer' : 'default',
+                      cursor: header.column.getCanSort()
+                        ? 'pointer'
+                        : 'default',
+
                       fontWeight: 'bold',
+
                       backgroundColor: '#f8fafc',
                     }}
                   >
@@ -214,6 +232,7 @@ function EmailReport({
                       header.column.columnDef.header,
                       header.getContext()
                     )}
+
                     {header.column.getIsSorted() === 'asc'
                       ? ' ▲'
                       : header.column.getIsSorted() === 'desc'
@@ -230,28 +249,50 @@ function EmailReport({
               <TableRow
                 key={row.id}
                 hover
-                sx={{ cursor: 'pointer' }}
+                sx={{
+                  cursor: 'pointer',
+                }}
                 onClick={() => onEmailClick(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
             ))}
 
-            {!loading && emails.length === 0 && (
+            {!loading && selectedEmails.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length}>
-                  <Box sx={{ textAlign: 'center', py: 8 }}>
+                  <Box
+                    sx={{
+                      textAlign: 'center',
+                      py: 8,
+                    }}
+                  >
                     <EmailIcon
-                      sx={{ fontSize: 50, color: 'text.disabled', mb: 1 }}
+                      sx={{
+                        fontSize: 50,
+                        color: 'text.disabled',
+                        mb: 1,
+                      }}
                     />
-                    <Typography variant="h6" color="text.secondary">
+
+                    <Typography
+                      variant="h6"
+                      color="text.secondary"
+                    >
                       No emails found
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                    >
                       Select a report timeframe and load your emails.
                     </Typography>
                   </Box>
@@ -264,9 +305,11 @@ function EmailReport({
 
       <TablePagination
         component="div"
-        count={emails.length}
+        count={selectedEmails.length}
         page={table.getState().pagination.pageIndex}
-        onPageChange={(event, newPage) => table.setPageIndex(newPage)}
+        onPageChange={(event, newPage) =>
+          table.setPageIndex(newPage)
+        }
         rowsPerPage={table.getState().pagination.pageSize}
         onRowsPerPageChange={(event) =>
           table.setPageSize(Number(event.target.value))

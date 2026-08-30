@@ -42,7 +42,7 @@ function ReportTimeframe({ timeframe, onChange, loading }) {
                 // backgroundColor: '#760299' ,
                             // Normal
         //  backgroundColor: 'rgba(255,255,255,.2)',                      
-     backgroundColor: "#7C3AED",
+     backgroundColor: timeframe === option.days ? '#cf2ac7' :"#7C3AED",
     color: "#FFFFFF",
     borderRadius: "8px",
     padding: "8px 18px",
@@ -55,34 +55,9 @@ function ReportTimeframe({ timeframe, onChange, loading }) {
 
     // Hover
     "&:hover": {
-      backgroundColor: "#6D28D9",
+      backgroundColor: "#563191",
       boxShadow: "0 4px 12px rgba(124, 58, 237, 0.4)",
       transform: "translateY(-1px)",
-    },
-
-    // Active / pressed
-    "&:active": {
-      backgroundColor: "#5B21B6",
-      transform: "translateY(0)",
-      boxShadow: "0 2px 6px rgba(91, 33, 182, 0.35)",
-    },
-
-    // Selected
-    "&.Mui-selected": {
-      backgroundColor: "#a989dd",
-      color: "#e61111",
-      boxShadow: "0 0 0 2px rgba(124, 58, 237, 0.25)",
-    },
-
-    // Selected + hover
-    "&.Mui-selected:hover": {
-      backgroundColor: "#4C1D95",
-    },
-
-    // Keyboard focus
-    "&:focus-visible": {
-      outline: "3px solid rgba(124, 58, 237, 0.35)",
-      outlineOffset: "2px",
     },
 
     // Disabled

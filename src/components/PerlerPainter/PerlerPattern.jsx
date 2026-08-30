@@ -9,7 +9,7 @@ import {
   MUTED_TEXT,
   TILE_BG,
   TILE_BORDER,
-} from '../config/contants';
+} from '../../config/contants';
 
 const defaultPattern = [
   '00111100',

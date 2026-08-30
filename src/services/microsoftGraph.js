@@ -40,7 +40,7 @@ export async function getMessages(accessToken, startDate, endDate) {
     received: email.receivedDateTime,
     status: email.isRead ? 'Read' : 'Unread',
     attachment: email.hasAttachments ? 'Yes' : 'No',
-    // parentFolderId: email.
+    parentFolderId: email.parentFolderId,
     unsubscribeLinks: [],
   }));
 }
@@ -59,6 +59,28 @@ export async function getMessageHeaders(accessToken, messageId) {
 
   return response.json();
 }
+
+
+
+export async function getFolders(accessToken, messageId) {
+  const response = await fetch(
+     `${GRAPH_BASE_URL}/me/mailFolders?$select=id,displayName,parentFolderId`,
+    {
+      headers: authHeaders(accessToken),
+    }
+  );
+   
+  if (!response.ok) {
+    return null;
+  }
+  
+  const data =  await response.json();
+ 
+
+  return [...data.value].filter(f => f.displayName =="Deleted Items")[0];
+}
+
+
 
 export async function getMessageBody(accessToken, messageId) {
 

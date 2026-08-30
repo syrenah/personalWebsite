@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import DOMPurify from 'dompurify';
+
 import { PublicClientApplication } from '@azure/msal-browser';
 import { Alert, Box, Button, Paper, Typography } from '@mui/material';
 import { Email as EmailIcon, Security as SecurityIcon } from '@mui/icons-material';
@@ -16,13 +16,14 @@ import JobPane from './components/JobPane';
 import {
   getMessageBody,
   getMessageHeaders,
+  getFolders,
   getMessages,
   moveMessageToDeletedItems,
   reportMessageAsJunk,
 } from './services/microsoftGraph';
 import {
   extractUnsubscribeLinks,
-  getDateRangeForDays,
+  getDateRangeForDays,sanitizedBody
 } from './utils/emailUtils';
 
 const msalInstance = new PublicClientApplication({
@@ -39,52 +40,22 @@ const msalInstance = new PublicClientApplication({
 
 function OutlookReport() {
   const [account, setAccount] = useState(null);
-  const [emails, setEmails] = useState([]);
+  const [allEmails, setAllEmails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedSenders, setSelectedSenders] = useState([]);
-  const [selectedEmails, setSelectedEmails] = useState([]);
-  const [selectedEmail, setSelectedEmail] = useState(null);
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [senderToBlock, setSenderToBlock] = useState(null);
+
   const [blocking, setBlocking] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [timeframe, setTimeframe] = useState(7);
 
-  const sanitizedBody = useMemo(() => {
-    if (!selectedEmail?.body) {
-      return '';
-    }
 
-    return DOMPurify.sanitize(selectedEmail.body, {
-      USE_PROFILES: {
-        html: true,
-      },
-      FORBID_TAGS: [
-        'script',
-        'iframe',
-        'object',
-        'embed',
-        'form',
-        'input',
-        'button',
-        'textarea',
-        'select',
-        'meta',
-        'link',
-      ],
-      FORBID_ATTR: [
-        'onerror',
-        'onload',
-        'onclick',
-        'onmouseover',
-        'onfocus',
-        'onmouseenter',
-        'onmouseleave',
-      ],
-    });
-  }, [selectedEmail?.body]);
+   const [selectedSenders, setSelectedSenders] = useState([]);
+  const [emailsSelectedForDeletion, setemailsSelectedForDeletion] = useState([]);
+  const [emailsSelectedForViewing, setemailsSelectedForViewing] = useState([]);
+  const [singleEmail, setsingleEmail] = useState(null);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [senderToBlock, setSenderToBlock] = useState(null);
 
 const [jobs, setJobs] = useState([]);
 
@@ -132,6 +103,8 @@ const [jobs, setJobs] = useState([]);
     await msalInstance.logoutRedirect();
   };
 
+  
+
   const getAccessToken = async (user) => {
     const request = {
       scopes: ['User.Read', 'Mail.ReadWrite'],
@@ -151,7 +124,7 @@ const [jobs, setJobs] = useState([]);
 
   const loadEmails = async (user = account, selectedTimeframe = timeframe) => {
     if (!user) return;
-
+    console.log(user);
     setLoading(true);
     setError(null);
 
@@ -165,9 +138,14 @@ const [jobs, setJobs] = useState([]);
       const { start, end } = getDateRangeForDays(selectedTimeframe);
       const formatted = await getMessages(accessToken, start, end);
 
-      setEmails(formatted);
-      setSelectedEmails([]);
-      setSelectedSenders([]);
+     const deleted = await getFolders(accessToken);
+   
+     const notDeletedEmails = formatted.filter((email) => email.parentFolderId !== deleted.id);
+
+     setAllEmails(notDeletedEmails);
+      // setfilteredEmails(filteredEmails);
+      // setSelectedEmails([]);
+      // setSelectedSenders([]);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -177,26 +155,16 @@ const [jobs, setJobs] = useState([]);
   };
 
   useEffect(() => {
-    if (account) {
+   
       loadEmails(account, timeframe);
-    }
-    // Intentionally load the default report once authentication completes.
-    // Timeframe changes are handled by handleTimeframeChange.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
+    
+  }, [account,timeframe]);
 
-  const handleTimeframeChange = (days) => {
-    setTimeframe(days);
-
-    if (account) {
-      loadEmails(account, days);
-    }
-  };
 
   const senderData = useMemo(() => {
     const groups = {};
 
-    emails.forEach((email) => {
+    allEmails.forEach((email) => {
       const key = email.senderEmail || email.sender || 'Unknown';
 
       if (!groups[key]) {
@@ -211,17 +179,7 @@ const [jobs, setJobs] = useState([]);
     });
 
     return Object.values(groups).sort((a, b) => b.count - a.count);
-  }, [emails]);
-
-  const filteredEmails = useMemo(() => {
-    if (selectedSenders.length === 0) {
-      return emails;
-    }
-
-    return emails.filter((email) =>
-      selectedSenders.includes(email.senderEmail)
-    );
-  }, [emails, selectedSenders]);
+  }, [allEmails]);
 
 
 
@@ -308,7 +266,7 @@ const [jobs, setJobs] = useState([]);
   // };
 
   const handleEmailClick = async (email) => {
-    setSelectedEmail({
+    setsingleEmail({
       ...email,
       body: '',
     });
@@ -327,7 +285,7 @@ const [jobs, setJobs] = useState([]);
         data.internetMessageHeaders
       );
 
-      setSelectedEmail({
+      setsingleEmail({
         ...email,
         body: data.body?.content || '',
         unsubscribeLinks,
@@ -336,7 +294,7 @@ const [jobs, setJobs] = useState([]);
       });
     } catch (err) {
       console.error(err);
-      setSelectedEmail(null);
+      setsingleEmail(null);
       setError(err.message);
     } finally {
       setEmailLoading(false);
@@ -358,7 +316,7 @@ const [jobs, setJobs] = useState([]);
         return;
       }
 
-      const senderMessage = emails.find(
+      const senderMessage = allEmails.find(
         (email) => email.senderEmail === senderToBlock.senderEmail
       );
 
@@ -368,13 +326,6 @@ const [jobs, setJobs] = useState([]);
 
       await reportMessageAsJunk(accessToken, senderMessage.id);
 
-      setEmails((current) =>
-        current.filter(
-          (email) => email.senderEmail !== senderToBlock.senderEmail
-        )
-      );
-
-      setSelectedEmails([]);
       setSenderToBlock(null);
     } catch (err) {
       console.error(err);
@@ -382,10 +333,16 @@ const [jobs, setJobs] = useState([]);
     } finally {
       setBlocking(false);
     }
-  };
+  }; //end block sender 
+
+    useEffect(() => {
+   
+      setemailsSelectedForViewing( allEmails.filter((email) => selectedSenders.includes(email.senderEmail)));
+    
+  }, [selectedSenders]);
 
   const toggleEmailSelection = (emailId) => {
-    setSelectedEmails((current) => {
+    setemailsSelectedForDeletion((current) => {
       if (current.includes(emailId)) {
         return current.filter((id) => id !== emailId);
       }
@@ -394,27 +351,33 @@ const [jobs, setJobs] = useState([]);
     });
   };
 
-  const toggleSelectAll = () => {
+const toggleSelectAll = () => {
+  setemailsSelectedForDeletion((current) => {
     const allVisibleSelected =
-      filteredEmails.length > 0 &&
-      filteredEmails.every((email) => selectedEmails.includes(email.id));
+      emailsSelectedForViewing.length > 0 &&
+      emailsSelectedForViewing.every((email) =>
+        current.includes(email.id)
+      );
 
     if (allVisibleSelected) {
-      setSelectedEmails((current) =>
-        current.filter(
-          (id) => !filteredEmails.some((email) => email.id === id)
-        )
+      // Unselect all currently visible emails
+      return current.filter(
+        (id) =>
+          !emailsSelectedForViewing.some(
+            (email) => email.id === id
+          )
       );
-      return;
     }
 
-    setSelectedEmails((current) => [
+    // Select all currently visible emails
+    return [
       ...new Set([
         ...current,
-        ...filteredEmails.map((email) => email.id),
+        ...emailsSelectedForViewing.map((email) => email.id),
       ]),
-    ]);
-  };
+    ];
+  });
+};
 
   const toggleSender = (senderEmail) => {
     setSelectedSenders((current) => {
@@ -427,7 +390,8 @@ const [jobs, setJobs] = useState([]);
   };
 
  const deleteSelectedEmails = async () => {
-  if (selectedEmails.length === 0) {
+  setDeleteDialogOpen(false)
+  if (emailsSelectedForDeletion.length === 0) {
     return;
   }
 
@@ -441,9 +405,10 @@ const [jobs, setJobs] = useState([]);
       throw new Error('Unable to obtain access token');
     }
 
-    await createDeleteJob(selectedEmails, accessToken);
+    await createDeleteJob(emailsSelectedForDeletion, accessToken);
 
-    setSelectedEmails([]);
+    setemailsSelectedForDeletion([]);
+    
     setDeleteDialogOpen(false);
   } catch (err) {
     console.error('Delete failed:', err);
@@ -466,7 +431,9 @@ const createDeleteJob = async (emailIds, accessToken) => {
     failed: 0,
     status: 'running',
   };
-
+ setemailsSelectedForViewing((current) =>
+  current.filter((email) => !emailIds.includes(email.id))
+);
   setJobs((current) => [
     ...current,
     job,
@@ -488,6 +455,8 @@ const runDeleteJob = async (
   let completed = 0;
   let failed = 0;
 
+  console.log(emailIds);
+
   const updateJob = () => {
     setJobs((current) =>
       current.map((job) =>
@@ -502,25 +471,27 @@ const runDeleteJob = async (
     );
   };
 
-  await Promise.all(
-    emailIds.map(async (emailId) => {
+  
+for (const emailId of emailIds) {
+  try {
+    await moveMessageToDeletedItems(
+      accessToken,
+      emailId
+    );
 
-      try {
-        await moveMessageToDeletedItems(
-          accessToken,
-          emailId
-        );
+    setAllEmails((current) => current.filter((email) => email.id !== emailId));
 
-        completed++;
-      } catch (error) {
-    
-        failed++;
-      }
 
-      updateJob();
-    })
-  );
 
+
+
+    completed++;
+  } catch (error) {
+    failed++;
+  }
+
+  updateJob();
+}
   setJobs((current) =>
     current.map((job) =>
       job.id === jobId
@@ -638,7 +609,7 @@ const runDeleteJob = async (
 
       <ReportTimeframe
         timeframe={timeframe}
-        onChange={handleTimeframeChange}
+        onChange={setTimeframe}
         loading={loading}
       />
 
@@ -653,9 +624,8 @@ const runDeleteJob = async (
      <JobPane jobs={jobs}/>
 
       <EmailReport
-        emails={filteredEmails}
-        selectedSenders={selectedSenders}
-        selectedEmails={selectedEmails}
+        emailsSelectedForDeletion={emailsSelectedForDeletion}
+        selectedEmails={emailsSelectedForViewing}
         loading={loading}
         onEmailClick={handleEmailClick}
         onToggleEmail={toggleEmailSelection}
@@ -672,18 +642,22 @@ const runDeleteJob = async (
 
       <DeleteEmailsDialog
         open={deleteDialogOpen}
-        emails={emails}
-        selectedEmails={selectedEmails}
-        loading={deleting}
+        emails={allEmails}
+        selectedEmails={emailsSelectedForDeletion}
+        // loading={deleting}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={deleteSelectedEmails}
       />
 
       <EmailDialog
-        email={selectedEmail}
+        email={singleEmail}
         loading={emailLoading}
-        sanitizedBody={sanitizedBody}
-        onClose={() => setSelectedEmail(null)}
+        sanitizedBody={
+    singleEmail?.body
+      ? sanitizedBody(singleEmail.body)
+      : ''
+  }
+        onClose={() => setsingleEmail(null)}
       />
     </Box>
   );
