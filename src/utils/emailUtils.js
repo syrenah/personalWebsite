@@ -39,13 +39,20 @@ export const sanitizedBody = (body) => {
 export const formatDate = (dateString) => {
   if (!dateString) return '';
 
-  return new Date(dateString).toLocaleString([], {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  const date = new Date(dateString);
+
+  const formattedDate = date.toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: '2-digit',
+  });
+
+  const formattedTime = date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
   });
+
+  return `${formattedDate} ${formattedTime}`;
 };
 
 export const formatShortDate = (dateString) => {
