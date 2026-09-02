@@ -138,12 +138,15 @@ function SenderReport({
         field: 'actions',
         headerName: '',
         minWidth: 72,
-        maxWidth: 84,
+        maxWidth: 100,
         sortable: false,
+        cellStyle: {
+          padding: '1px',
+        },
         cellRenderer: (params) => {
           const { sender, senderEmail, count } = params.data;
           return (
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0.5} alignItems="center" justifyContent="center">
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0.5} alignItems="center" justifyContent="center" sx={{ width: '100%', py: 0 }}>
               <Chip
                 label={count}
                 size="small"

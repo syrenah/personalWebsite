@@ -29,7 +29,15 @@ function ReportTimeframe({ timeframe, onChange, loading }) {
           Report timeframe
         </Typography>
 
-        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ width: '100%' }}>
+        <Stack
+          direction="row"
+          gap={1}
+          sx={{
+            width: '100%',
+            flexWrap: 'nowrap',
+            overflow: 'hidden',
+          }}
+        >
           {TIMEFRAMES.map((option) => (
             <Button
               key={option.days}
@@ -38,18 +46,18 @@ function ReportTimeframe({ timeframe, onChange, loading }) {
               disabled={loading}
               size="small"
               sx={{
-                flex: '1 1 120px',
-                minWidth: 120,
-                maxWidth: 160,
+                flex: '1 1 0',
+                minWidth: 0,
                 justifyContent: 'center',
                 backgroundColor: timeframe === option.days ? '#cf2ac7' : '#7C3AED',
                 color: '#FFFFFF',
                 borderRadius: '8px',
-                padding: '8px 18px',
+                padding: '8px 10px',
                 fontWeight: 600,
                 textTransform: 'none',
                 boxShadow: '0 2px 6px rgba(124, 58, 237, 0.25)',
                 transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
                 '&:hover': {
                   backgroundColor: '#563191',
                   boxShadow: '0 4px 12px rgba(124, 58, 237, 0.4)',

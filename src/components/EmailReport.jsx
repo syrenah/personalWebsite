@@ -249,7 +249,7 @@ function EmailReport({
               disabled={emailsSelectedForDeletion.length === 0}
               onClick={onDelete}
             >
-              Delete
+              View & Delete
             </Button>
 
             {emailsSelectedForDeletion.length > 0 && (
@@ -294,11 +294,11 @@ function EmailReport({
           defaultColDef={defaultColDef}
           theme="legacy"
           rowSelection="multiple"
-          suppressRowClickSelection={false}
+          suppressRowClickSelection={true}
           onGridReady={onGridReady}
           onFirstDataRendered={onFirstDataRendered}
           onGridSizeChanged={onGridSizeChanged}
-          rowMultiSelectWithClick={true}
+          rowMultiSelectWithClick={false}
           domLayout="normal"
           headerHeight={42}
           rowAutoHeight={true}

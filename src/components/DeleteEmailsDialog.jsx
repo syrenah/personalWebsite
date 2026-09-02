@@ -7,11 +7,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
 import { formatDate } from '../utils/emailUtils';
 
 function DeleteEmailsDialog({
@@ -20,6 +24,7 @@ function DeleteEmailsDialog({
   selectedEmails,
   onClose,
   onConfirm,
+  onRemoveEmail,
 }) {
   return (
     <Dialog
@@ -59,21 +64,40 @@ function DeleteEmailsDialog({
             return (
               <Box
                 key={email.id}
-                sx={{ p: 1.5, borderBottom: '1px solid #eee' }}
+                sx={{
+                  p: 1.5,
+                  borderBottom: '1px solid #eee',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: 1,
+                }}
               >
-                <Typography fontWeight="bold" noWrap>
-                  {email.subject}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  noWrap
+                <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                  <Typography fontWeight="bold" noWrap>
+                    {email.subject}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    noWrap
+                  >
+                    {email.senderEmail}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {formatDate(email.received)}
+                  </Typography>
+                </Box>
+
+                <IconButton
+                  size="small"
+                  aria-label={`Remove ${email.subject} from deletion list`}
+                  color="error"
+                  onClick={() => onRemoveEmail(email.id)}
+                  sx={{ mt: 0.25 }}
                 >
-                  {email.senderEmail}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {formatDate(email.received)}
-                </Typography>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
               </Box>
             );
           })}
