@@ -13,9 +13,12 @@ import {
   Stack,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Block as BlockIcon,
+  Close as CloseIcon,
   Email as EmailIcon,
   Link as LinkIcon,
 } from '@mui/icons-material';
@@ -41,8 +44,11 @@ function SenderReport({
   selectedSenders,
   onSenderToggle,
   onBlockSender,
+  onBlockSelected,
   getUnsubscribeLinks, 
 }) {
+  const theme = useTheme();
+  const isXsScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [unsubscribeDialogOpen, setUnsubscribeDialogOpen] =
     useState(false);
 
@@ -52,6 +58,43 @@ function SenderReport({
 
   const [loadingUnsubscribe, setLoadingUnsubscribe] =
     useState(false);
+
+  const [blockDialogOpen, setBlockDialogOpen] = useState(false);
+  const [sendersToBlock, setSendersToBlock] = useState([]);
+
+
+
+  const handleBlockSelected = () => {
+    const selectedSenderDetails = selectedSenders.map((email) => {
+      const senderInfo = senders.find((item) => item.senderEmail === email);
+      return senderInfo
+        ? { sender: senderInfo.sender, senderEmail: email }
+        : null;
+    }).filter(Boolean);
+
+    if (selectedSenderDetails.length > 0) {
+      setSendersToBlock(selectedSenderDetails);
+      setBlockDialogOpen(true);
+    }
+  };
+
+  const handleRemoveSenderToBlock = (senderEmail) => {
+    setSendersToBlock((currentSenders) =>
+      currentSenders.filter((sender) => sender.senderEmail !== senderEmail)
+    );
+    onSenderToggle(senderEmail);
+  };
+
+  const handleConfirmBlockSelected = () => {
+    if (sendersToBlock.length === 0) {
+      setBlockDialogOpen(false);
+      return;
+    }
+
+    onBlockSelected(sendersToBlock);
+    setBlockDialogOpen(false);
+    setSendersToBlock([]);
+  };
 
   const handleUnsubscribeClick = async (
     event,
@@ -108,12 +151,7 @@ function SenderReport({
         checkboxSelection: true,
         suppressMenu: true,
         sortable: false,
-        // cellStyle: {
-        //   padding: '0 4px',
-        //   display: 'flex',
-        //   alignItems: 'center',
-        //   justifyContent: 'center',
-        // },
+     
       },
       {
              field: 'sender',
@@ -211,9 +249,24 @@ function SenderReport({
           background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
         }}
       >
+        <Stack direction="row" alignItems="center" gap={1} justifyContent="space-between" sx={{mb: 1}}>
+          <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+            <Typography variant="h6" fontWeight="bold">Senders</Typography>
+            <Chip size="small" label={`${senders.length} senders`} sx={{ background: '#7209c9', color: 'white', fontWeight: 600 }} />
+          </Stack>
+          {selectedSenders.length > 0 && (
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              startIcon={<BlockIcon />}
+              onClick={handleBlockSelected}
+            >
+              Block Selected ({selectedSenders.length})
+            </Button>
+          )}
+        </Stack>
         <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-          <Typography variant="h6" fontWeight="bold">Senders</Typography>
-          <Chip size="small" label={`${senders.length} senders`} sx={{ background: '#7209c9', color: 'white', fontWeight: 600 }} />
 
           {selectedSenders.length > 0 && (
             selectedSenders.map((email) => {
@@ -287,7 +340,7 @@ function SenderReport({
           rowMultiSelectWithClick={true}
           domLayout="normal"
           headerHeight={42}
-           rowHeight={120}
+          rowHeight={isXsScreen ? 120 : 40}
           suppressCellFocus={true}
           onRowSelected={(params) => {
             if (params.data) {
@@ -300,6 +353,62 @@ function SenderReport({
           paginationPageSizeSelector={[10, 25, 50, 100]}
         />
       </Box>
+
+      <Dialog
+        open={blockDialogOpen}
+        onClose={() => setBlockDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Are you sure you want to block these senders?</DialogTitle>
+
+        <DialogContent>
+          <Stack spacing={1}>
+            {sendersToBlock.map(({ sender, senderEmail }) => (
+              <Paper
+                key={senderEmail}
+                variant="outlined"
+                sx={{
+                  p: 1.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 1,
+                }}
+              >
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography fontWeight={600} noWrap>
+                    {sender}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ wordBreak: 'break-word' }}>
+                    {senderEmail}
+                  </Typography>
+                </Box>
+                <IconButton
+                  aria-label={`Remove ${senderEmail} from blocking`}
+                  size="small"
+                  onClick={() => handleRemoveSenderToBlock(senderEmail)}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Paper>
+            ))}
+          </Stack>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setBlockDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<BlockIcon />}
+            onClick={handleConfirmBlockSelected}
+            disabled={sendersToBlock.length === 0}
+          >
+            Block Selected
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={unsubscribeDialogOpen} onClose={handleCloseUnsubscribeDialog} maxWidth="sm" fullWidth>
         <DialogTitle>Unsubscribe</DialogTitle>

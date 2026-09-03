@@ -1,10 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
-  Checkbox,
   Chip,
-  LinearProgress,
   Paper,
   Stack,
   Toolbar,
@@ -12,7 +10,6 @@ import {
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
-  Email as EmailIcon,
 } from '@mui/icons-material';
 import { AgGridReact } from 'ag-grid-react';
 import {
@@ -36,7 +33,7 @@ ModuleRegistry.registerModules([
   RowAutoHeightModule,
 ]);
 
-import { formatDate } from '../utils/emailUtils';
+
 
 function EmailReport({
   selectedEmails = [],
@@ -44,21 +41,13 @@ function EmailReport({
   loading,
   onEmailClick,
   onToggleEmail,
-  onToggleSelectAll,
+ 
   onDelete,
 }) {
-  const allVisibleSelected =
-    selectedEmails.length > 0 &&
-    selectedEmails.every((email) =>
-      emailsSelectedForDeletion.includes(email.id)
-    );
-
-  const someVisibleSelected =
-    selectedEmails.some((email) =>
-      emailsSelectedForDeletion.includes(email.id)
-    ) && !allVisibleSelected;
 
   const [gridApi, setGridApi] = useState(null);
+  const isSyncingRef = React.useRef(false);
+
 
   const defaultColDef = useMemo(
     () => ({
@@ -187,11 +176,32 @@ function EmailReport({
 
   const rowData = useMemo(() => selectedEmails, [selectedEmails]);
 
+  useEffect(() => {
+    if (!gridApi || isSyncingRef.current) {
+      return;
+    }
+
+    isSyncingRef.current = true;
+    const selectedIds = new Set(emailsSelectedForDeletion);
+
+    gridApi.forEachNode((node) => {
+      const shouldBeSelected = selectedIds.has(node.data?.id);
+      if (node.selected !== shouldBeSelected) {
+        node.setSelected(shouldBeSelected, false);
+      }
+    });
+    isSyncingRef.current = false;
+  }, [gridApi, emailsSelectedForDeletion]);
+
   const onGridReady = (params) => {
     setGridApi(params.api);
   };
 
   const syncSelectionState = (params) => {
+    if (isSyncingRef.current) {
+      return;
+    }
+
     const gridSelectedIds = new Set(
       params.api.getSelectedRows().map((row) => row.id)
     );

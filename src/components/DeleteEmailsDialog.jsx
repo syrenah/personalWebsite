@@ -25,6 +25,7 @@ function DeleteEmailsDialog({
   onClose,
   onConfirm,
   onRemoveEmail,
+  onEmailClick,
 }) {
   return (
     <Dialog
@@ -73,7 +74,23 @@ function DeleteEmailsDialog({
                   gap: 1,
                 }}
               >
-                <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                <Box
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onEmailClick(email)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onEmailClick(email);
+                    }
+                  }}
+                  sx={{
+                    minWidth: 0,
+                    flexGrow: 1,
+                    cursor: 'pointer',
+                    '&:hover': { opacity: 0.75 },
+                  }}
+                >
                   <Typography fontWeight="bold" noWrap>
                     {email.subject}
                   </Typography>
@@ -93,7 +110,10 @@ function DeleteEmailsDialog({
                   size="small"
                   aria-label={`Remove ${email.subject} from deletion list`}
                   color="error"
-                  onClick={() => onRemoveEmail(email.id)}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onRemoveEmail(email.id);
+                  }}
                   sx={{ mt: 0.25 }}
                 >
                   <CloseIcon fontSize="small" />

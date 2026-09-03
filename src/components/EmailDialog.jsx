@@ -19,6 +19,7 @@ import {
 import { formatDate } from '../utils/emailUtils';
 
 function EmailDialog({ email, loading, sanitizedBody, onClose }) {
+
   return (
     <Dialog open={Boolean(email)} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>

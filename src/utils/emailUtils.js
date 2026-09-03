@@ -97,6 +97,83 @@ export const extractUnsubscribeLinks = (headers = []) => {
     .filter(isValidUnsubscribeUrl);
 };
 
+export const getSpamLikelihood = ({
+  senderEmail = '',
+  subject = '',
+  headers = [],
+} = {}) => {
+  const email = senderEmail.trim().toLowerCase();
+  const reasons = [];
+  let score = 0;
+  const addSignal = (points, reason) => {
+    score += points;
+    reasons.push(reason);
+  };
+
+  const atIndex = email.lastIndexOf('@');
+  const localPart = atIndex > 0 ? email.slice(0, atIndex) : '';
+  const domain = atIndex > 0 ? email.slice(atIndex + 1) : '';
+  const digitCount = (email.match(/\d/g) || []).length;
+
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    addSignal(2, 'The sender address is malformed.');
+  }
+
+  if (email.length > 50) {
+    addSignal(1, 'The sender address is unusually long.');
+  }
+
+  if (digitCount > 5) {
+    addSignal(2, 'The sender address contains more than five numbers.');
+  }
+
+  if (localPart.length > 30) {
+    addSignal(1, 'The sender name is unusually long.');
+  }
+
+  if (domain && /\.(ru|cn|tk|top|xyz|click|zip)$/i.test(domain)) {
+    addSignal(1, 'The sender uses a domain commonly seen in spam.');
+  }
+
+  const normalizedHeaders = headers.map((header) => ({
+    name: header.name?.toLowerCase() || '',
+    value: header.value?.toLowerCase() || '',
+  }));
+
+  const spamStatus = normalizedHeaders.find(
+    (header) => header.name === 'x-spam-status' || header.name === 'x-spam-flag'
+  );
+  if (spamStatus && /yes|true|spam/.test(spamStatus.value)) {
+    addSignal(3, 'A mail server marked this message as spam.');
+  }
+
+  const authenticationResults = normalizedHeaders.find(
+    (header) => header.name === 'authentication-results'
+  );
+  if (authenticationResults && /fail|softfail|none/.test(authenticationResults.value)) {
+    addSignal(2, 'Email authentication did not pass.');
+  }
+
+  const replyTo = normalizedHeaders.find(
+    (header) => header.name === 'reply-to'
+  );
+  const replyToEmail = replyTo?.value.match(/<([^>]+)>|([\w.+-]+@[\w.-]+)/)?.[1]
+    || replyTo?.value.match(/<([^>]+)>|([\w.+-]+@[\w.-]+)/)?.[2];
+  if (replyToEmail && domain && !replyToEmail.toLowerCase().endsWith(`@${domain}`)) {
+    addSignal(1, 'The reply address uses a different domain.');
+  }
+
+  if (/\b(urgent|winner|claim|prize|free money|act now)\b/i.test(subject)) {
+    addSignal(1, 'The subject uses common spam language.');
+  }
+
+  return {
+    isLikelySpam: score >= 2,
+    score,
+    reasons,
+  };
+};
+
 export const getDateRangeForDays = (days) => {
   const end = new Date();
   const start = new Date();

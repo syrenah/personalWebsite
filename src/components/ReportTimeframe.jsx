@@ -49,6 +49,7 @@ function ReportTimeframe({ timeframe, onChange, loading }) {
                 flex: '1 1 0',
                 minWidth: 0,
                 justifyContent: 'center',
+                minHeight: { xs: 48, sm: 'auto' },
                 backgroundColor: timeframe === option.days ? '#cf2ac7' : '#7C3AED',
                 color: '#FFFFFF',
                 borderRadius: '8px',
@@ -57,7 +58,8 @@ function ReportTimeframe({ timeframe, onChange, loading }) {
                 textTransform: 'none',
                 boxShadow: '0 2px 6px rgba(124, 58, 237, 0.25)',
                 transition: 'all 0.2s ease',
-                whiteSpace: 'nowrap',
+                whiteSpace: { xs: 'normal', sm: 'nowrap' },
+                lineHeight: { xs: 1.15, sm: 'normal' },
                 '&:hover': {
                   backgroundColor: '#563191',
                   boxShadow: '0 4px 12px rgba(124, 58, 237, 0.4)',
