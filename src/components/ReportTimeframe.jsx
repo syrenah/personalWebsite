@@ -7,7 +7,7 @@ export const TIMEFRAMES = [
   { label: '60 Days', days: 60 },
   { label: '90 Days', days: 90 },
   { label: '180 Days', days: 180 },
-  { label: '1 Year', days: 365 },
+  { label: '1 Year', days: 965 },
 ];
 
 function ReportTimeframe({ timeframe, onChange, loading }) {

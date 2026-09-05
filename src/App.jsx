@@ -1,24 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { Box, Button, Stack } from '@mui/material';
 // import Notebook from './components/Notebook';
 // import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from '@mui/material';
 // import NamePopup from './NamePopup';
 import OutlookReport from './OutlookReport';
+import GoogleReport from './GoogleReport';
 // import OutlookPortal from './OutlookPortal';
 
 function App() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    // Open the dialog once on mount
-    setOpen(true);
-  }, []);
+  const [selectedReport, setSelectedReport] = useState('outlook');
 
   return (
     <>
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant={selectedReport === 'google' ? 'contained' : 'outlined'}
+            onClick={() => setSelectedReport('google')}
+          >
+            Google
+          </Button>
+          <Button
+            variant={selectedReport === 'outlook' ? 'contained' : 'outlined'}
+            onClick={() => setSelectedReport('outlook')}
+          >
+            Outlook
+          </Button>
+        </Stack>
+      </Box>
 
-<OutlookReport/>
-
-
+      {selectedReport === 'google' ? <GoogleReport /> : <OutlookReport />}
 
      {/* Hi {localStorage.getItem('name')} */}
 

@@ -7,10 +7,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Drawer,
   IconButton,
   Paper,
   Stack,
+  Toolbar,
   Typography,
 } from '@mui/material';
 import {
@@ -164,8 +166,15 @@ function SuspiciousityDrawer({
 
   const columnDefs = useMemo(() => [
     {
+      field: 'select',
+      headerName: '',
+      width: 52,
+      checkboxSelection: (params) => params.data.rowType === 'group',
+      sortable: false,
+    },
+    {
       field: 'sender',
-      headerName: 'Sender / Email',
+      headerName: 'Sender',
       flex: 5,
       minWidth: 180,
       cellRenderer: (params) => {
@@ -224,22 +233,15 @@ function SuspiciousityDrawer({
         </Typography>
       ) : null,
     },
-    {
-      field: 'score',
-      headerName: 'Score',
-      width: 85,
-      sortable: true,
-      cellRenderer: (params) => params.data.rowType === 'group'
-        ? <Chip size="small" color="error" label={params.value} />
-        : <Typography variant="caption">{params.data.spamScore}</Typography>,
-    },
-    {
-      field: 'select',
-      headerName: '',
-      width: 52,
-      checkboxSelection: (params) => params.data.rowType === 'group',
-      sortable: false,
-    },
+    // {
+    //   field: 'score',
+    //   headerName: 'Score',
+    //   width: 85,
+    //   sortable: true,
+    //   cellRenderer: (params) => params.data.rowType === 'group'
+    //     ? <Chip size="small" color="error" label={params.value} />
+    //     : <Typography variant="caption">{params.data.spamScore}</Typography>,
+    // },
   ], [expandedSenders]);
 
   const handleGridCellClicked = (params) => {
@@ -270,7 +272,7 @@ function SuspiciousityDrawer({
       <Drawer anchor="bottom" open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{
-            p: { xs: 1.5, sm: 3 },
+            // p: { xs: 1.5, sm: 3 },
             height: '70vh',
             minHeight: 360,
             display: 'flex',
@@ -278,42 +280,57 @@ function SuspiciousityDrawer({
             boxSizing: 'border-box',
           }}
         >
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={1}
-            justifyContent="space-between"
-            alignItems={{ xs: 'stretch', sm: 'center' }}
-            sx={{ mb: 2, flexShrink: 0 }}
+          <Toolbar
+            sx={{
+              p: 2,
+              background: 'linear-gradient(90deg, #e3b3ff, #fdf4ff)',
+              flexShrink: 0,
+            }}
           >
-            <Box>
-              <Typography variant="h6" fontWeight="bold">Suspiciousity report</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Select sender groups to report or move all their emails to Deleted Items.
-              </Typography>
-            </Box>
-            <Stack direction="row" spacing={1}>
-              <Button
-                size="small"
-                color="error"
-                variant="contained"
-                startIcon={<BlockIcon />}
-                disabled={selectedGroups.length === 0}
-                onClick={handleReport}
-              >
-                Report senders
-              </Button>
-              <Button
-                size="small"
-                color="error"
-                variant="outlined"
-                startIcon={<DeleteIcon />}
-                disabled={selectedGroups.length === 0}
-                onClick={handleDelete}
-              >
-                Delete emails
-              </Button>
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={1}
+              justifyContent="space-between"
+              sx={{ mb: 1 }}
+            >
+              <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+                <Typography variant="h6" fontWeight="bold">Suspiciousity report</Typography>
+                <Chip
+                  size="small"
+                  label={`${suspiciousGroups.length} senders`}
+                  sx={{ background: '#7209c9', color: 'white', fontWeight: 600 }}
+                />
+              </Stack>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  size="small"
+                  color="error"
+                  variant="contained"
+                  startIcon={<BlockIcon />}
+                  disabled={selectedGroups.length === 0}
+                  onClick={handleReport}
+                >
+                  Report senders
+                </Button>
+                <Button
+                  size="small"
+                  color="error"
+                  variant="outlined"
+                  startIcon={<DeleteIcon />}
+                  disabled={selectedGroups.length === 0}
+                  onClick={handleDelete}
+                >
+                  Delete emails
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
+            <Typography variant="body2" color="text.secondary">
+              Select suspicious senders to report or move their emails to Deleted Items.
+            </Typography>
+          </Toolbar>
+
+          <Divider />
 
           <Box
             className="ag-theme-alpine"
@@ -328,12 +345,17 @@ function SuspiciousityDrawer({
                 display: 'flex',
                 alignItems: 'center',
                 minWidth: 0,
-                whiteSpace: 'normal',
               },
               '& .ag-row': { cursor: 'pointer' },
               '& .ag-row-selected': {
                 backgroundColor: '#f8fafc !important',
                 color: '#0f172a',
+              },
+              '& .ag-row:not(.ag-row-selected)': {
+                backgroundColor: '#ffffff !important',
+              },
+              '& .ag-row-selected:hover': {
+                backgroundColor: '#f1f5f9 !important',
               },
             }}
           >
@@ -341,6 +363,7 @@ function SuspiciousityDrawer({
               rowData={rowData}
               columnDefs={columnDefs}
               defaultColDef={{ resizable: true, suppressMenu: true }}
+              theme="legacy"
               getRowId={(params) => params.data.rowId}
               getRowHeight={(params) => params.data.rowType === 'group' ? 58 : 56}
               rowSelection="multiple"
@@ -357,8 +380,12 @@ function SuspiciousityDrawer({
                 );
               }}
               onCellClicked={handleGridCellClicked}
+              domLayout="normal"
+              headerHeight={42}
+              suppressCellFocus={true}
               pagination
               paginationPageSize={25}
+              paginationPageSizeSelector={[10, 25, 50, 100]}
               overlayNoRowsTemplate="<span class='ag-overlay-no-rows-center'>No suspicious senders found</span>"
             />
           </Box>
@@ -397,7 +424,7 @@ function SuspiciousityDrawer({
                     {senderEmail}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    Score {score} · {emailCount} email{emailCount === 1 ? '' : 's'}
+                    {/* Score {score} · */} {emailCount} email{emailCount === 1 ? '' : 's'}
                   </Typography>
                 </Box>
                 <IconButton

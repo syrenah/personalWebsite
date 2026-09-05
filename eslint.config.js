@@ -57,7 +57,10 @@ export default [
       'import/no-unresolved': 'error',
 
       // Warn when an imported variable doesn't actually exist
-      'no-undef': 'error'
+      'no-undef': 'error',
+
+      // Unused variables are allowed
+      'no-unused-vars': 'off'
     }
   }
 ];

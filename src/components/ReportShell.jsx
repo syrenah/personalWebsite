@@ -347,6 +347,9 @@ function ReportShell({
 
   const createDeleteJob = async (emailIds, accessToken) => {
     const jobId = crypto.randomUUID();
+    const emailDetails = emailIds
+      .map((emailId) => allEmails.find((email) => email.id === emailId))
+      .filter(Boolean);
 
     const job = {
       id: jobId,
@@ -357,6 +360,7 @@ function ReportShell({
       failed: 0,
       status: 'running',
       emails: emailIds,
+      emailDetails,
     };
 
     setEmailsSelectedForViewing((current) =>
@@ -427,8 +431,8 @@ function ReportShell({
       if (!accessToken) {
         throw new Error('Unable to obtain access token');
       }
-
-      await createDeleteJob(emailsSelectedForDeletion, accessToken);
+// await 
+      createDeleteJob(emailsSelectedForDeletion, accessToken);
       setEmailsSelectedForDeletion([]);
     } catch (err) {
       console.error('Delete failed:', err);
