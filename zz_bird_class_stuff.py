@@ -63,8 +63,8 @@ if __name__ == "__main__":
     chicken.name="Charlesssssssssssssss"
     print(chicken.name)
     chicken.frolic()
-    # print(chicken.__hatColor) #doesnt work
+    # print(chicken.__hatColor) #doesnt work name mangled self._Bird__hatColor
     chicken.describe()
     chicken.be_happy()
-    chicken._hatColor = "blue"
+    chicken._hatColor = "blue" # doenst work no setter
     chicken.describe()
